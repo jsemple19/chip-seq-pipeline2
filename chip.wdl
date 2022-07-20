@@ -236,10 +236,10 @@ workflow chip {
         Float macs2_signal_track_disk_factor = 80.0
 
         Int call_peak_cpu = 6
-        Float call_peak_spp_mem_factor = 5.0
+        Float call_peak_spp_mem_factor = 16.0
         Float call_peak_macs2_mem_factor = 5.0
         Int call_peak_time_hr = 72
-        Float call_peak_spp_disk_factor = 5.0
+        Float call_peak_spp_disk_factor = 16.0
         Float call_peak_macs2_disk_factor = 30.0
 
         String? align_trimmomatic_java_heap
