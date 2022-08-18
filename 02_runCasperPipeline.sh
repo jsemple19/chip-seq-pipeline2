@@ -6,12 +6,13 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=pall
 #SBATCH --mem-per-cpu=1G
-#SBATCH --array=6#1-3,5-8,12-24%2
+#SBATCH --array=1-24%2
 
 
 ######## Do not run more than 2 array jobs at once as each job
 ######## spawns a whole bunch of other jobs....!!
 
+export TMPDIR=$SCRATCH
 srrFile="./SRR_SMCmodEncode_ChIPseq.csv"
 
 source $CONDA_ACTIVATE encodeChipSeq
@@ -27,5 +28,5 @@ cd ./${grp}/chip/*/
 croo metadata.json
 
 # once all jobs have finished can create overall summary with this command
-#qc2tsv ./qc/qc.json > spreadsheet.tsv
+#qc2tsv ./*/chip/*/qc/qc.json  > spreadsheet.tsv
 
