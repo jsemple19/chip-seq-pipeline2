@@ -6,7 +6,6 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --partition=pall
 #SBATCH --mem-per-cpu=1G
-#SBATCH --array=1#%2
 
 
 ######## Do not run more than 2 array jobs at once as each job
@@ -14,27 +13,27 @@
 
 export TMPDIR=$SCRATCH
 echo $TMPDIR
-srrFile="./SRR_SMCmodEncode_ChIPseq.csv"
-
+srrFile="./SRR_modEncode_chromatinChipSeq_modHistone.csv"
 WORK_DIR=$PWD
 if [ ! -d "${WORK_DIR}/results" ]; then
  mkdir -p ${WORK_DIR}/results
 fi
+JSON_DIR=${WORK_DIR}/jsonFiles
+#FASTQ_DIR=${WORK_DIR}/results/SRR_download
+#genomeTsvPath="/data/projects/p025/jenny/genome/ce11/ce11.tsv"
+
+#module load R;
+#Rscript ./makeJSON.R $WORK_DIR $JSON_DIR $FASTQ_DIR $srrFile $genomeTsvPath
 
 source $CONDA_ACTIVATE encodeChipSeq
 
 groupNames=( `grep -v -e '^[[:space:]]*$' ${srrFile} |  cut -d";" -f4  | grep -v group | sort -u` )
-groupNames=( `cut -d";" -f4 ${srrFile} | grep -v group | sort -u` )
-grp=${groupNames[$SLURM_ARRAY_TASK_ID-1]}
-jsonFile=${WORK_DIR}/jsonFiles_TF/${grp}.json
-echo "jsonFile is: " $jsonFile
-caper hpc submit chip.wdl -i "${jsonFile}" --singularity  --local-out-dir results/${grp} --str-label ${grp} --leader-job-name chipseq  --slurm-partition pall --slurm-account $USER
-
-
-# reorganise the data in a more human friendly format (adds peaks, signal, align and qc folders)
-#cd ${WORK_DIR}/results/${grp}/chip/*/
-#croo metadata.json
-
-# once all jobs have finished can create overall summary with this command
-#qc2tsv ./results/*/chip/*/qc/qc.json  > spreadsheet.tsv
+#groupNames=( `cut -d";" -f4 ${srrFile} | grep -v group | sort -u` )
+for grp in "${groupNames[@]}" #"${groupNames[@]:1}" to do all except for first group
+do
+ #grp=${groupNames[$SLURM_ARRAY_TASK_ID-1]}
+ jsonFile=${JSON_DIR}/${grp}.json
+ echo "jsonFile is: " $jsonFile
+ caper hpc submit chip.wdl -i "${jsonFile}" --singularity  --local-out-dir results/${grp} --str-label ${grp} --leader-job-name $jsonFile  --slurm-partition pall --slurm-account $USER --max-concurrent-tasks 4 --max-concurrent-workflows 4
+done
 
