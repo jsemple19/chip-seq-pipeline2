@@ -22,12 +22,9 @@ source $CONDA_ACTIVATE encodeChipSeq
 module load R;
 
 groupNames=( `grep -v -e '^[[:space:]]*$' ${srrFile} |  cut -d";" -f4  | grep -v group | sort -u` )
-#grp=${groupNames[$SLURM_ARRAY_TASK_ID-1]}
-#jsonFile=${WORK_DIR}/jsonFiles_Ahringer/${grp}.json
-#echo "jsonFile is: " $jsonFile
+echo "jsonFile is: " $jsonFile
 
 # reorganise the data in a more human friendly format (adds peaks, signal, align and qc folders)
-#cd ${WORK_DIR}/qc/${grp}/
 for grp in ${groupNames[@]}
 do
   latestRun=`ls -t ${WORK_DIR}/results/${grp}/chip/ | head -1`
@@ -37,7 +34,7 @@ do
   cd ${WORK_DIR}
 done
 
-
+# copy selected files to higher level directory
 Rscript collectResults.R $srrFile $WORK_DIR $JSON_DIR
 
 
